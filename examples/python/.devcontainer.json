@@ -1,0 +1,17 @@
+{
+  "image": "jaimemachadoneto/dev-container",
+  "mounts": [
+    "source=jaimemachadoneto-dev-container-py,target=/nix,type=volume",
+    "source=jaimemachadoneto-dev-container-py-ext,target=/home/vscode/.vscode-server/extensions,type=volume",
+    "source=jaimemachadoneto-dev-container-py-extin,target=/home/vscode/.vscode-server-insiders/extensions,type=volume"
+  ],
+  "remoteUser": "vscode",
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "zsh",
+    "terminal.integrated.profiles.linux": {
+      "zsh": {
+        "path": "/home/vscode/.nix-profile/bin/zsh"
+      }
+    }
+  }
+}
