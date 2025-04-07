@@ -2,7 +2,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
-    pre-commit-hooks.url = "github:jaimemachadoneto/pre-commit-hooks.nix/hadolint";
+    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
 
   outputs = { self, nixpkgs, flake-utils, pre-commit-hooks }:
