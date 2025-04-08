@@ -11,7 +11,6 @@
     pkgs.fd
     pkgs.fzf
     pkgs.gawk
-    pkgs.git
     pkgs.gh
     pkgs.gnused
     pkgs.jq
@@ -25,13 +24,12 @@
     # Go development tools
     pkgs.go_1_23 # Go compiler and tools
     pkgs.gopls # Language server for Go
-    pkgs.git # Version control
     pkgs.gotools # Additional Go tools
     pkgs.delve
 
     # Node.js and npm
     pkgs.nodejs_18 # Node.js 18.x
-    pkgs.nodePackages.npm # npm package manager
+    pkgs.nodePackages_18.npm # npm package manager
 
     # Java
     pkgs.jre # Java Runtime Environment
@@ -48,7 +46,7 @@
     pkgs.pkg-config # Helper tool for compiling applications
     pkgs.autoconf # Configure script builder
     pkgs.automake # Makefile generator
-    pkgSwig.swig4 # Interface compiler for connecting C/C++ with scripting languages
+    # inputs.pkgsPkgSwig.swig4 # Interface compiler for connecting C/C++ with scripting languages
     pkgs.lcov # Code coverage reporting tool    
   ];
 

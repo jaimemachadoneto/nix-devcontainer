@@ -37,9 +37,8 @@ RUN curl -L ${NIX_INSTALLER} | NIX_INSTALLER_NO_MODIFY_PROFILE=1 sh
 
 # Copy configs
 RUN mkdir -p /home/${USER}/.config/devcontainer/extra
-COPY --chown=${USER}:${USER} config/flake.nix /home/${USER}/.config/devcontainer/flake.nix
-COPY --chown=${USER}:${USER} config/flake.lock /home/${USER}/.config/devcontainer/flake.lock
-COPY --chown=${USER}:${USER} config/config.nix /home/${USER}/.config/devcontainer/config.nix
+COPY --chown=${USER}:${USER} config/ /home/${USER}/.config/devcontainer/
+
 
 # Fix architecture and user
 RUN sed -i "s/ARCH/$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]')/" /home/${USER}/.config/devcontainer/flake.nix
@@ -48,13 +47,18 @@ RUN sed -i "s/USER/${USER}/" /home/${USER}/.config/devcontainer/flake.nix
 # Build home-manager
 WORKDIR /home/${USER}/.config/devcontainer
 RUN . /home/${USER}/.nix-profile/etc/profile.d/nix.sh && \
-    nix build --no-link .#homeConfigurations.${USER}.activationPackage
+    nix-env --set-flag priority 10 nix-2.28.1 && \
+    nix run --show-trace .#activate ${USER}@
+# nix build --no-link --show-trace .#homeConfigurations.${USER}.activationPackage
+
+RUN nix-garbage-collect
 
 FROM debian:stable-slim
 
-ARG USER
-ARG UID
-ARG GID
+ARG USER=vscode
+ARG UID=1000
+ARG GID=${UID}
+
 
 ENV NIX_CONF_DIR /etc
 ENV DIRENV_CONFIG /etc
@@ -73,6 +77,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get upgrade -y && apt-g
 RUN groupadd -g ${GID} ${USER} && \
     useradd -u ${UID} -g ${GID} -G sudo -m ${USER} -s /bin/bash
 COPY --from=base --chown=${USER}:${USER} /home/${USER} /home/${USER}
+# Copy nix and configs
+COPY --from=base --chown=${USER}:${USER} /nix /nix
+COPY --from=base /etc/nix.conf /etc/nix.conf
+
 
 # Configure en_US.UTF-8 locale
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
@@ -81,14 +89,11 @@ RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
 # Configure sudo
 RUN sed -i 's/%sudo.*ALL/%sudo   ALL=(ALL:ALL) NOPASSWD:ALL/' /etc/sudoers
 
-# Setup Nix environment
+# # Setup Nix environment
 RUN echo "source /home/${USER}/.nix-profile/etc/profile.d/nix.sh" >> /etc/bash.bashrc && \
     echo "source /home/${USER}/.nix-profile/etc/profile.d/nix.sh" >> /etc/zshrc
 
-# Copy nix and configs
-COPY --from=base /nix /nix
-COPY --from=base /etc/nix.conf /etc/nix.conf
-COPY config/direnv.toml /etc
+RUN mkdir -p /go && chown -R ${USER}:${USER} /go
 
 USER ${USER}
 
@@ -98,15 +103,18 @@ RUN mkdir -p /home/${USER}/.vscode-server/extensions && \
 
 # Switch to home-manager environment
 WORKDIR /home/${USER}/.config/devcontainer
+
+
 ENV USER=${USER}
 RUN . /home/${USER}/.nix-profile/etc/profile.d/nix.sh && \
     nix-env --set-flag priority 10 nix-2.28.1 && \
     mkdir -p /nix/var/nix/profiles/per-user/${USER} && \
     mkdir -p /nix/var/nix/gcroots/per-user/vscode/ && \
-    "$(nix path-info .#homeConfigurations.${USER}.activationPackage)"/activate
+    nix run --show-trace .#activate ${USER}@
 
 # Copy entrypoint
 COPY --chown=${USER}:${USER} docker-entrypoint.sh /docker-entrypoint.sh
 
+RUN /home/${USER}/.nix-profile/bin/zsh -ic zplug update
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
