@@ -43,9 +43,7 @@ COPY --chown=${USER}:${USER} config/ /home/${USER}/.config/devcontainer/
 WORKDIR /home/${USER}/.config/devcontainer
 RUN . /home/${USER}/.nix-profile/etc/profile.d/nix.sh && \
     nix-env --set-flag priority 10 nix-2.28.1 && \
-    nix run --show-trace .#activate ${USER}@ && \
-    nix-collect-garbage
-# nix build --no-link --show-trace .#homeConfigurations.${USER}.activationPackage
+    nix run --show-trace .#activate ${USER}@
 
 
 

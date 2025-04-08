@@ -188,12 +188,6 @@
     '';
   };
 
-  programs.tmate = {
-    enable = true;
-    # FIXME: This causes tmate to hang.
-    # extraConfig = config.xdg.configFile."tmux/tmux.conf".text;
-  };
-
   home.packages = [
     # Open tmux for current project.
     (pkgs.writeShellApplication {

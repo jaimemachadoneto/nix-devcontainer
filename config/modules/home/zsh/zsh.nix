@@ -113,6 +113,11 @@
 
       show_file_or_dir_preview="if [ -d {} ]; then eza --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
 
+      # Only get VSCODE_IPC_HOOK_CLI when inside tmux
+      if [ -n "$TMUX" ]; then
+        VSCODE_IPC_HOOK_CLI=$( lsof | grep vscode-ipc | awk '{print $(NF-2)}' | head -n 1 )
+      fi
+
       export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview'"
       export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
       export FZF_CTRL_R_OPTS="

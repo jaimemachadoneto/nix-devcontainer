@@ -39,13 +39,9 @@ in
     nixpkgs-fmt
     gcc
 
-    # DevPackages
-    binocular-cli
-
     # On ubuntu, we need this less for `man home-configuration.nix`'s pager to
     # work.
     less
-    fex
   ];
 
   fonts.fontconfig.enable = true;
@@ -96,7 +92,6 @@ in
     "upgradeflakes" = "nix-channel --update && nix flake update && nix-env -u";
     "nixclean" = "nix-collect-garbage -d";
 
-    "fev" = "fex a";
   };
 
   programs = {
