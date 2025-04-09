@@ -35,13 +35,14 @@ in
 
     # Nix dev
     cachix
-    nix-info
-    nixpkgs-fmt
     gcc
 
     # On ubuntu, we need this less for `man home-configuration.nix`'s pager to
     # work.
     less
+
+    #Custom packages
+    findin
   ];
 
   fonts.fontconfig.enable = true;

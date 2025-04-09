@@ -1,0 +1,46 @@
+{
+    "dockerComposeFile": "docker-compose.yaml",
+    "service": "dev",
+    "workspaceFolder": "/workspace",
+    "remoteUser": "vscode",
+    "remoteEnv": {},
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "terminal.integrated.profiles.linux": {
+                    "zsh": {
+                        "path": "/home/vscode/.nix-profile/bin/zsh"
+                    },
+                    "tmux": {
+                        "path": "/home/vscode/.nix-profile/bin/tmux"
+                    }
+                },
+                "[nix]": {
+                    "editor.defaultFormatter": "B4dM4n.nixpkgs-fmt",
+                },
+                "nixEnvSelector.nixFile": "3{workspaceFolder}/config/shell.nix",
+            },
+            "extensions": [
+                "rogalmic.bash-debug",
+                "shakram02.bash-beautify",
+                "mads-hartmann.bash-ide-vscode",
+                "streetsidesoftware.code-spell-checker",
+                "ms-vscode-remote.remote-containers",
+                "mkhl.direnv",
+                "ms-azuretools.vscode-docker",
+                "docker.docker",
+                "bbenoist.Nix",
+                "arrterian.nix-env-selector",
+                "jnoortheen.nix-ide",
+                "B4dM4n.nixpkgs-fmt",
+                "elagil.pre-commit-helper"
+            ]
+        }
+    },
+    "initializeCommand": [
+        "sh",
+        "-c",
+        "if [ \"$(uname)\" = \"Linux\" ]; then echo DOCKER_GROUP_ID=$(getent group docker | cut -d: -f3) > ./.devcontainer/.env; elif [ \"$(uname)\" = \"Windows_NT\" ]; then echo DOCKER_GROUP_ID=0 > ./.devcontainer/.env; fi"
+    ]
+}

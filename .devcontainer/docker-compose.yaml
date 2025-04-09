@@ -1,0 +1,32 @@
+version: "3"
+services:
+  dev:
+    container_name: vscode-dev-nix-devcontainer
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        - DOCKER_BUILDKIT=1
+        - BUILDKIT_INLINE_CACHE=1
+    volumes:
+      - ../:/workspace:cached
+      - shared-vscode-ext:/home/vscode/.vscode-server/
+      - shared-vscode-ext-insiders:/home/vscode/.vscode-server-insiders/
+      - shared-goroot:/go
+      - ${DOCKER_SOCK:-/var/run/docker.sock}:${DOCKER_SOCK:-/var/run/docker.sock}
+    security_opt:
+      - label:disable
+    group_add:
+      - ${DOCKER_GROUP_ID}
+    env_file: .env
+
+volumes:
+  shared-vscode-ext:
+    external: true
+    name: devcontainer-shared-ext
+  shared-vscode-ext-insiders:
+    external: true
+    name: devcontainer-shared-ext-insiders
+  shared-goroot:
+    external: true
+    name: devcontainer-shared-goroot

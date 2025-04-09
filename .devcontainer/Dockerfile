@@ -2,7 +2,7 @@ ARG USER=vscode
 ARG UID=1000
 ARG GID=${UID}
 
-FROM debian:stable-slim as base
+FROM debian:stable-slim AS base
 
 ARG USER
 ARG UID
@@ -35,17 +35,9 @@ ENV NIX_PATH=/home/${USER}/.nix-defexpr/channels:/nix/var/nix/profiles/per-user/
 ENV NIX_CONF_DIR /etc
 RUN curl -L ${NIX_INSTALLER} | NIX_INSTALLER_NO_MODIFY_PROFILE=1 sh
 
-# Copy configs
-RUN mkdir -p /home/${USER}/.config/devcontainer/extra
-COPY --chown=${USER}:${USER} config/ /home/${USER}/.config/devcontainer/
-
 # Build home-manager
-WORKDIR /home/${USER}/.config/devcontainer
 RUN . /home/${USER}/.nix-profile/etc/profile.d/nix.sh && \
-    nix-env --set-flag priority 10 nix-2.28.1 && \
-    nix run --show-trace .#activate ${USER}@
-
-
+    nix-env --set-flag priority 10 nix-2.28.1
 
 
 FROM debian:stable-slim
@@ -88,28 +80,24 @@ RUN sed -i 's/%sudo.*ALL/%sudo   ALL=(ALL:ALL) NOPASSWD:ALL/' /etc/sudoers
 RUN echo "source /home/${USER}/.nix-profile/etc/profile.d/nix.sh" >> /etc/bash.bashrc && \
     echo "source /home/${USER}/.nix-profile/etc/profile.d/nix.sh" >> /etc/zshrc
 
-RUN mkdir -p /go && chown -R ${USER}:${USER} /go
 
 USER ${USER}
 
+ENV USER=${USER}
 # Setup vscode
 RUN mkdir -p /home/${USER}/.vscode-server/ && \
     mkdir -p /home/${USER}/.vscode-server-insiders/
 
-# Switch to home-manager environment
-WORKDIR /home/${USER}/.config/devcontainer
-
-
-ENV USER=${USER}
+# Build home-manager
 RUN . /home/${USER}/.nix-profile/etc/profile.d/nix.sh && \
-    nix-env --set-flag priority 10 nix-2.28.1 && \
-    mkdir -p /nix/var/nix/profiles/per-user/${USER} && \
-    mkdir -p /nix/var/nix/gcroots/per-user/vscode/ && \
-    nix run --show-trace .#activate ${USER}@
+    nix-env --set-flag priority 10 nix-2.28.1
+# && \
+# nix-env -iA nixpkgs.nixd && \
+# nix-env -iA nixpkgs.nixpkgs-fmt
+
 
 # Copy entrypoint
 COPY --chown=${USER}:${USER} docker-entrypoint.sh /docker-entrypoint.sh
 
-RUN /home/${USER}/.nix-profile/bin/zsh -ic zplug update
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
