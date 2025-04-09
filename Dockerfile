@@ -110,6 +110,6 @@ RUN . /home/${USER}/.nix-profile/etc/profile.d/nix.sh && \
 # Copy entrypoint
 COPY --chown=${USER}:${USER} docker-entrypoint.sh /docker-entrypoint.sh
 
-RUN /home/${USER}/.nix-profile/bin/zsh -ic zplug update
+RUN /home/${USER}/.nix-profile/bin/zsh -ic 'source ~/.zshrc && zplug update'
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
