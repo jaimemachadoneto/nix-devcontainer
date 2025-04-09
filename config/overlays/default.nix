@@ -7,4 +7,5 @@ let
 in
 self: super: {
   findin = self.callPackage "${packages}/findin" { };
+  binocular-cli = self.callPackage "${packages}/binocular-cli" { };
 }

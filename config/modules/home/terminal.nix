@@ -16,26 +16,20 @@ in
   home.packages = with pkgs; [
     # Unixy tools
     fd # Better find
-    bc # Calculator
-    bottom # System viewer (btm)
     eza # Better ls
     ripgrep # Better grep
     delta
-    eza # Better ls
-    ncdu # TUI disk usage
     htop # Better top
-    nmap # Network scanner
     sd # sed alternative
     curl # Download files
-    xh # HTTPie alternative
     gnupg
     gnumake
     tree
+    lsof
 
 
     # Nix dev
     cachix
-    gcc
 
     # On ubuntu, we need this less for `man home-configuration.nix`'s pager to
     # work.
@@ -43,6 +37,7 @@ in
 
     #Custom packages
     findin
+    binocular-cli
   ];
 
   fonts.fontconfig.enable = true;
