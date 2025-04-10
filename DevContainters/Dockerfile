@@ -2,7 +2,7 @@ ARG USER=vscode
 ARG UID=1000
 ARG GID=${UID}
 
-FROM debian:stable-slim as base
+FROM debian:bookworm-slim as base
 
 ARG USER
 ARG UID
@@ -35,25 +35,18 @@ ENV NIX_PATH=/home/${USER}/.nix-defexpr/channels:/nix/var/nix/profiles/per-user/
 ENV NIX_CONF_DIR /etc
 RUN curl -L ${NIX_INSTALLER} | NIX_INSTALLER_NO_MODIFY_PROFILE=1 sh
 
-# Copy configs
-RUN mkdir -p /home/${USER}/.config/devcontainer/extra
-COPY --chown=${USER}:${USER} config/ /home/${USER}/.config/devcontainer/
 
-# Build home-manager
-WORKDIR /home/${USER}/.config/devcontainer
 RUN . /home/${USER}/.nix-profile/etc/profile.d/nix.sh && \
-    nix-env --set-flag priority 10 nix-2.28.1 && \
-    nix run --show-trace .#activate ${USER}@ && \
-    nix-collect-garbage -d
+    nix-env --set-flag priority 10 nix-2.28.1
 
 
 
 
-FROM debian:stable-slim
+FROM debian:bookworm-slim
 
-ARG USER=vscode
-ARG UID=1000
-ARG GID=${UID}
+ARG USER
+ARG UID
+ARG GID
 
 
 ENV NIX_CONF_DIR /etc
@@ -72,10 +65,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get upgrade -y && apt-g
 # Create user
 RUN groupadd -g ${GID} ${USER} && \
     useradd -u ${UID} -g ${GID} -G sudo -m ${USER} -s /bin/bash
-COPY --from=base --chown=${USER}:${USER} /home/${USER} /home/${USER}
 # Copy nix and configs
 COPY --from=base --chown=${USER}:${USER} /nix /nix
 COPY --from=base /etc/nix.conf /etc/nix.conf
+COPY --from=base --chown=${USER}:${USER} /home/${USER} /home/${USER}
 
 
 # Configure en_US.UTF-8 locale
@@ -97,20 +90,29 @@ USER ${USER}
 RUN mkdir -p /home/${USER}/.vscode-server/ && \
     mkdir -p /home/${USER}/.vscode-server-insiders/
 
-# Switch to home-manager environment
-WORKDIR /home/${USER}/.config/devcontainer
+# Copy configs
+RUN mkdir -p /home/${USER}/.config/devcontainer/extra
+COPY --chown=${USER}:${USER} ./ /home/${USER}/.config/devcontainer/
 
+# Build home-manager
+WORKDIR /home/${USER}/.config/devcontainer
 
 ENV USER=${USER}
 RUN . /home/${USER}/.nix-profile/etc/profile.d/nix.sh && \
     nix-env --set-flag priority 10 nix-2.28.1 && \
     mkdir -p /nix/var/nix/profiles/per-user/${USER} && \
     mkdir -p /nix/var/nix/gcroots/per-user/vscode/ && \
-    nix run --show-trace .#activate ${USER}@
+    nix run --show-trace .#activate ${USER}@ && \
+    nix-collect-garbage -d
 
 # Copy entrypoint
 COPY --chown=${USER}:${USER} docker-entrypoint.sh /docker-entrypoint.sh
 
-RUN /home/${USER}/.nix-profile/bin/zsh -ic 'source ~/.zshrc && zplug update'
+# Check if zsh exists before running zplug update
+RUN if [ -f "/home/${USER}/.nix-profile/bin/zsh" ]; then \
+    /home/${USER}/.nix-profile/bin/zsh -ic 'source ~/.zshrc && zplug update'; \
+    else \
+    echo "zsh not found, skipping zplug update"; \
+    fi
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]

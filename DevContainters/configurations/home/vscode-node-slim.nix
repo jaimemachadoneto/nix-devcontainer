@@ -5,8 +5,8 @@ let
 in
 {
   imports = [
-    self.homeModules.go
-    # self.homeModules.vscode-server
+    self.homeModules.node
+    self.homeModules.vscode-server
     self.homeModules.gotask
   ];
 

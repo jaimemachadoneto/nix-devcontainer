@@ -5,9 +5,7 @@ let
 in
 {
   imports = [
-    self.homeModules.go
-    # self.homeModules.vscode-server
-    self.homeModules.gotask
+    self.homeModules.default
   ];
 
   nixpkgs.config = { allowBroken = true; allowUnfree = true; };
@@ -21,8 +19,8 @@ in
     config.nix.package
   ];
 
-  home.username = "vscode-go-slim";
-  home.homeDirectory = lib.mkDefault "/${if pkgs.stdenv.isDarwin then "Users" else "home"}/vscode-go-slim";
+  home.username = "vscode";
+  home.homeDirectory = lib.mkDefault "/${if pkgs.stdenv.isDarwin then "Users" else "home"}/vscode";
   home.stateVersion = "24.11";
 
 }

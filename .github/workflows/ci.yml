@@ -15,54 +15,33 @@ on:
       - "test/**"
   workflow_dispatch:
 
+  workflow_call:
+    secrets:
+      BOT_APP_ID:
+        description: The App ID of the GitHub App
+        required: true
+      BOT_APP_PRIVATE_KEY:
+        description: The private key of the GitHub App
+        required: true
+
+
 name: CI
 
 env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  test:
-    name: Test Docker image
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Generate cache references
-        uses: int128/docker-build-cache-config-action@v1
-        id: cache
-        with:
-          image: ghcr.io/${{ github.repository }}/cache-test
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login to Github Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build container locally
-        if: steps.cache.outputs.cache-to != 0
-        run: |
-          docker buildx build -t test \
-            --output type=docker \
-            --cache-from ${{ steps.cache.outputs.cache-from }} \
-            --cache-to ${{ steps.cache.outputs.cache-to }} .
-      - name: Build container locally
-        if: steps.cache.outputs.cache-to == 0
-        run: |
-          docker buildx build -t test \
-            --output type=docker \
-            --cache-from ${{ steps.cache.outputs.cache-from }} .
-      - name: Run container test
-        run: |
-          docker run \
-          -v "$(pwd)/test:/workspace" \
-          --entrypoint /bin/bash \
-          test -c 'cd /workspace && ./test.sh'
   push:
     name: Push Docker image
     runs-on: ubuntu-latest
-    needs: [test]
+    strategy:
+      matrix:
+        user:
+          - vscode-go-slim
+          - vscode-node-slim
+          - vscode
+
+
     steps:
       - name: Set up QEMU for multi-arch builds
         uses: docker/setup-qemu-action@master
@@ -71,6 +50,14 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@master
+
+      - name: Generate Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: "${{ secrets.BOT_APP_ID }}"
+          private-key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
+
       - name: Login to Github Container Registry
         uses: docker/login-action@v3
         with:
@@ -82,8 +69,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/${{ env.IMAGE_NAME }}
-            ${{ env.IMAGE_NAME }}
+            ghcr.io/${{ env.IMAGE_NAME }}-${{ matrix.user }}
+            ${{ env.IMAGE_NAME }}-${{ matrix.user }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -100,11 +87,14 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           builder: ${{ steps.buildx.outputs.name }}
+          context: .
           platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: ${{ steps.cache.outputs.cache-from }}
           cache-to: ${{ steps.cache.outputs.cache-to }}
+          build-args: |
+            USER=${{ matrix.user }}
           push: true
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master

@@ -9,19 +9,6 @@
           set -x
           ${lib.getExe self'.packages.activate} "$USER"@
         '';
-        #   text = ''
-        #     # Try to get hostname from multiple sources
-        #     if [ -f /etc/hostname ]; then
-        #       HOST=$(cat /etc/hostname)
-        #     elif [ -n "$HOSTNAME" ]; then
-        #       HOST=$HOSTNAME
-        #     else
-        #       HOST=$(hostname)
-        #     fi
-
-        #     set -x
-        #     ${lib.getExe self'.packages.activate} "$HOST"@
-        #   '';
       };
     };
   };
