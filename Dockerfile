@@ -92,7 +92,7 @@ RUN mkdir -p /home/${USER}/.vscode-server/ && \
 
 # Copy configs
 RUN mkdir -p /home/${USER}/.config/devcontainer/extra
-COPY --chown=${USER}:${USER} ./ /home/${USER}/.config/devcontainer/
+COPY --chown=${USER}:${USER} DevContainers/ /home/${USER}/.config/devcontainer/
 
 # Build home-manager
 WORKDIR /home/${USER}/.config/devcontainer
