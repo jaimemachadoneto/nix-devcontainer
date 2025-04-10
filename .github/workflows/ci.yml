@@ -5,14 +5,13 @@ on:
     paths:
       - "Dockerfile"
       - "docker-entrypoint.sh"
-      - "config/**"
-      - "test/**"
+      - "DevContainers/**"
   pull_request:
     paths:
       - "Dockerfile"
       - "docker-entrypoint.sh"
-      - "config/**"
-      - "test/**"
+      - "DevContainers/**"
+
   workflow_dispatch:
 
   workflow_call:
