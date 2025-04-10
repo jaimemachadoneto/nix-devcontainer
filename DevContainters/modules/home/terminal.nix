@@ -5,9 +5,9 @@ let
   inherit (flake) inputs;
 in
 {
-  imports = [
-    inputs.nix-index-database.hmModules.nix-index
-  ];
+  # imports = [
+  #   inputs.nix-index-database.hmModules.nix-index
+  # ];
 
 
   nixpkgs.config = {
@@ -95,7 +95,7 @@ in
       enable = true;
       enableZshIntegration = true;
     };
-    nix-index-database.comma.enable = true;
+    #  nix-index-database.comma.enable = true;
     # lsd = {
     #   enable = true;
     #   enableAliases = true;
@@ -113,10 +113,6 @@ in
       options = [
         "--cmd cd" # replace cd with z and zi (via cdi)
       ];
-    };
-    tmate = {
-      enable = true;
-      #host = ""; #In case you wish to use a server other than tmate.io
     };
   };
 }

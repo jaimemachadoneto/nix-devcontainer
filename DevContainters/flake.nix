@@ -8,7 +8,7 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    # nixos-unified.url = "github:srid/nixos-unified";
+    nixos-unified.url = "github:srid/nixos-unified";
 
     # Software inputs
     # nix-index-database.url = "github:nix-community/nix-index-database";
@@ -35,7 +35,6 @@
           inherit system;
           overlays = lib.attrValues self.overlays;
           config.allowUnfree = true;
-          hostname = "vscode";
         };
       };
     };

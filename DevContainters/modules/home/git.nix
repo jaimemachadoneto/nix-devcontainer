@@ -28,8 +28,6 @@ in
   programs.git = {
     # difftastic.enable = true;
     enable = true;
-    userName = "Jaime Machado"; #flake.config.me.fullname;
-    userEmail = "jaime.machado@gmail.com"; #flake.config.me.email;
     lfs.enable = true;
 
     delta = {
