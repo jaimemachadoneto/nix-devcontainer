@@ -21,8 +21,8 @@ in
     config.nix.package
   ];
 
-  home.username = "vscode-go-slim";
-  home.homeDirectory = lib.mkDefault "/${if pkgs.stdenv.isDarwin then "Users" else "home"}/vscode-go-slim";
+  home.username = "vscode-node-slim";
+  home.homeDirectory = lib.mkDefault "/${if pkgs.stdenv.isDarwin then "Users" else "home"}/vscode-node-slim";
   home.stateVersion = "24.11";
 
 }
